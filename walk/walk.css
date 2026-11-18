@@ -1,0 +1,134 @@
+/* Branch walkthrough. Colours: #3475B0 #A6A7CA #5D87B9 #000000 #FFFFFF only. */
+@font-face { font-family: "Poppins"; src: url("fonts/Poppins-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Poppins"; src: url("fonts/Poppins-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Poppins"; src: url("fonts/Poppins-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Coiny"; src: url("fonts/Coiny-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+
+html, body { margin: 0; height: 100%; overflow: hidden; background: #3475B0; }
+
+.bw { position: fixed; inset: 0; overflow: hidden; background: #3475B0; color: #000000;
+  font-family: "Poppins", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.bw *, .bw *::before, .bw *::after { box-sizing: border-box; }
+.bw button { font-family: inherit; }
+
+.bw-layer { position: absolute; inset: 0; overflow: hidden; }
+.bw-base { z-index: 1; }
+.bw-from { z-index: 2; visibility: hidden; }
+.bw-vlayer { z-index: 3; pointer-events: none; }
+
+/* A box with the picture's own aspect ratio that covers the window. */
+.bw-stage { position: absolute; left: 50%; top: 50%;
+  width: max(100vw, calc(100vh * var(--ar, 1.7778)));
+  height: max(100vh, calc(100vw / var(--ar, 1.7778)));
+  transform: translate(-50%, -50%); }
+.bw-pic { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: fill;
+  user-select: none; -webkit-user-drag: none; }
+.bw-video { opacity: 0; background: transparent; }
+
+.bw-fade { transition: opacity 200ms ease; }
+.bw-fade.is-off { opacity: 0; pointer-events: none; transition-duration: 150ms; }
+
+/* Clickable shapes */
+.bw-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.bw-poly { fill: transparent; stroke: transparent; stroke-width: 2px; transition: fill 120ms ease, stroke 120ms ease; }
+.bw-poly.is-on { fill: rgb(255 255 255 / 0.14); stroke: #FFFFFF; }
+.bw-poly.is-focus { stroke-width: 4px; }
+.bw-hit { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0;
+  background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.bw-hit:focus { outline: none; }
+.bw-hit:disabled { cursor: default; }
+
+/* Labels on the cutaways */
+.bw-tag { position: absolute; transform: translate(-50%, -50%); background: #FFFFFF; color: #000000;
+  border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 600; line-height: 1.2;
+  white-space: nowrap; pointer-events: none; transition: transform 180ms ease, background 180ms ease, color 180ms ease; }
+.bw-tag.is-on { transform: translate(-50%, calc(-50% - 8px)); background: #3475B0; color: #FFFFFF; }
+.bw-tag.is-focus { outline: 3px solid #000000; outline-offset: 2px; }
+.bw-tag--small { font-size: 12px; font-weight: 500; padding: 5px 11px; }
+.bw-tag.is-pulse { animation: bw-pulse 700ms ease-in-out 3; }
+@keyframes bw-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.3); background: #3475B0; color: #FFFFFF; }
+}
+
+/* Logo sign on the exterior's blue panel: panel spans x 56.5-64.6%, y 55.7-84.9% of the picture */
+.bw-sign { position: absolute; left: 60.55%; top: 67%; width: 5.6%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  background: #FFFFFF; border-radius: 50%; padding: 0.7%; pointer-events: none; }
+.bw-sign img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+/* Floor card shown beside a hovered storey */
+.bw-card { position: absolute; transform: translateY(-50%); background: #3475B0; color: #FFFFFF;
+  border-radius: 16px; padding: 14px 18px; width: max-content; max-width: 320px; pointer-events: none; }
+.bw-card .bw-kicker { color: #FFFFFF; }
+.bw-card h2 { margin: 0 0 4px; font-size: 20px; font-weight: 600; line-height: 1.2; }
+.bw-card p { margin: 0; font-size: 13px; line-height: 1.4; }
+.bw-card.is-focus { outline: 3px solid #FFFFFF; outline-offset: 2px; }
+
+.bw-kicker { margin: 0 0 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+
+/* Top bar */
+.bw-top { position: absolute; z-index: 10; top: 20px; left: 24px; right: 24px; display: flex;
+  justify-content: space-between; align-items: flex-start; pointer-events: none; }
+.bw-top > * { pointer-events: auto; }
+.bw-logo { display: flex; align-items: center; background: #FFFFFF; border: 0; border-radius: 14px;
+  padding: 10px 16px; cursor: pointer; }
+.bw-logo img { display: block; height: 30px; width: auto; }
+.bw-nav { position: relative; display: flex; gap: 8px; }
+
+.bw-pill { height: 40px; padding: 0 18px; border: 0; border-radius: 999px; background: #FFFFFF; color: #000000;
+  font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap; cursor: pointer;
+  transition: background 150ms ease, color 150ms ease; }
+.bw-pill:hover { background: #A6A7CA; }
+.bw-pill.is-current { background: #000000; color: #FFFFFF; }
+.bw-pill.is-current:hover { background: #5D87B9; }
+.bw-pill:focus-visible, .bw-logo:focus-visible, .bw-menu button:focus-visible {
+  outline: 3px solid #000000; outline-offset: 2px; }
+
+.bw-menu { position: absolute; top: 48px; right: 0; min-width: 270px; background: #FFFFFF; border-radius: 18px; padding: 8px; }
+.bw-menu ul { list-style: none; margin: 0; padding: 0; }
+.bw-menu button { display: block; width: 100%; text-align: left; border: 0; background: transparent; color: #000000;
+  font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 10px; cursor: pointer; }
+.bw-menu button:hover { background: #3475B0; color: #FFFFFF; }
+
+/* Building intro */
+.bw-intro { position: absolute; z-index: 10; left: 24px; bottom: 24px; background: #FFFFFF; border-radius: 20px;
+  padding: 20px 24px; max-width: min(460px, 44vw); }
+.bw-headline { margin: 0 0 8px; font-family: "Coiny", "Poppins", sans-serif; font-weight: 400;
+  font-size: clamp(26px, 2.8vw, 40px); line-height: 1.08; }
+.bw-hint { margin: 0; font-size: 14px; }
+
+/* Room screen */
+.bw-caption { position: absolute; z-index: 10; left: 24px; bottom: 24px; background: #FFFFFF; border-radius: 20px;
+  padding: 18px 22px; max-width: min(440px, 38vw); }
+.bw-caption h1 { margin: 0 0 6px; font-size: clamp(22px, 2.1vw, 30px); font-weight: 600; line-height: 1.15; }
+.bw-fact { margin: 0; font-size: 15px; line-height: 1.45; }
+.bw-sample { margin: 10px 0 0; font-size: 11px; }
+.bw-rooms { position: absolute; z-index: 10; right: 24px; bottom: 24px; display: flex; flex-wrap: wrap;
+  justify-content: flex-end; gap: 8px; max-width: min(760px, 56vw); }
+.bw-rooms .bw-pill.is-current { background: #3475B0; color: #FFFFFF; }
+.bw-pill--back { margin-left: 8px; }
+
+.bw-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bw-tag, .bw-pill, .bw-poly { transition: none; }
+  .bw-tag.is-pulse { animation-duration: 1s; }
+}
+
+/* Directory sign (the printed "Where to?" sign, clickable) */
+.bw-tag--btn { pointer-events: auto; cursor: pointer; border: 0; font-family: inherit; background: #3475B0; color: #FFFFFF; }
+.bw-tag--btn:hover { background: #000000; }
+.bw-tag--btn:focus-visible { outline: 3px solid #000000; outline-offset: 2px; }
+.bw-pill--dark { background: #000000; color: #FFFFFF; }
+.bw-pill--dark:hover { background: #5D87B9; }
+.bw-sign-modal { position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
+  background: rgb(0 0 0 / 0.55); padding: 16px; }
+.bw-sign-panel { background: #FFFFFF; border-radius: 20px; padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px;
+  max-height: calc(100vh - 32px); }
+.bw-sign-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.bw-sign-head .bw-kicker { margin: 0; }
+.bw-sign-board { position: relative; height: min(calc(100vh - 110px), 760px); max-width: calc(100vw - 64px); }
+.bw-sign-board img { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: 8px; user-select: none; }
+.bw-sign-hit { position: absolute; border: 0; margin: 0; padding: 0; background: transparent; border-radius: 10px; cursor: pointer;
+  outline: 2px solid transparent; outline-offset: 0; transition: background 120ms ease, outline-color 120ms ease; }
+.bw-sign-hit:hover, .bw-sign-hit:focus-visible { background: rgb(52 117 176 / 0.12); outline: 3px solid #3475B0; }
